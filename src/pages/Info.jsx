@@ -1,24 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PrevButton from "../components/PrevButton";
 import InfoInput from "../components/InfoInput";
 import AddButton from "../components/AddButton";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 
-const Info = () => {
+const Info = ({sendIngredientList}) => {
   // logic
   const history = useNavigate()
 
   // TODO: set함수 추가하기
-  const [ingredientList] = useState([]); // 사용자가 입력할 재료 목록
+  const [ingredientList, setIngredientList] = useState([]); // 사용자가 입력할 재료 목록
 
   const addIngredient = () => {
-    console.log("재료 추가하기");
+     // input 추가
+    const id = Date.now()
+    const newItem = {
+      id,
+      label: `ingredient${id}`,
+      text: "재료명",
+      value: ""  // 사용자가 입력할 재료
+    }
+
+    setIngredientList((prev) => [...prev, newItem] )
   };
 
+  const handleRemove =(selectedId) => {
+    
+    const filterIngredientList = ingredientList.filter((item) => item.id !== selectedId)
+    setIngredientList(filterIngredientList)
+  }
+  const handleInputChange = (updateItem) => {
+    setIngredientList((prev) => prev.map((item) => item.id === updateItem.id ? updateItem : item))
+  }
   const handleNext = () => {
+    sendIngredientList(ingredientList)
     history("/chat")
   };
+
+  useEffect(() => {
+   console.log("ingredientList", ingredientList)
+  }, [ingredientList])
+
 
   // view
   return (
@@ -42,7 +65,7 @@ const Info = () => {
             {/* START:input 영역 */}
             <div>
               {ingredientList.map((item) => (
-                <InfoInput key={item.id} content={item} />
+                <InfoInput key={item.id} content={item} onRemove={handleRemove} onChange={handleInputChange}/>
               ))}
             </div>
             {/* END:input 영역 */}
